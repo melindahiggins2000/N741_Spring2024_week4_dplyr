@@ -1,0 +1,163 @@
+---
+title: "dplyr and tables"
+author: "Melinda Higgins"
+date: "2024-02-07"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      error = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+
+library(dplyr)
+```
+
+## Make table of a data.frame
+
+Show a simple data.frame output.
+
+```{r}
+mtcars %>%
+  select(cyl, mpg, hp) %>%
+  arrange(hp) %>%
+  filter(hp < 100)
+```
+
+Now convert it to a formatted table using `knitr::kable()` function.
+
+```{r}
+mtcars %>%
+  select(cyl, mpg, hp) %>%
+  arrange(hp) %>%
+  filter(hp < 100) %>%
+  knitr::kable()
+```
+
+## Getting summary statistics
+
+```{r}
+mtcars %>%
+  select(cyl, mpg, hp) %>%
+  arrange(hp) %>%
+  summarise(meanmpg = mean(mpg),
+            meanhp = mean(hp)) %>%
+  # use rmarkdown and knitr
+  # for nicer rendered table
+  knitr::kable(
+    col.names = c("MPG","HP"),
+    caption = "Means of MPG and HP"
+  )
+```
+
+## Summary stats with `group_by()`
+
+```{r}
+mtcars %>%
+  select(cyl, mpg, hp) %>%
+  arrange(hp) %>%
+  group_by(cyl) %>%
+  summarise(meanmpg = mean(mpg),
+            meanhp = mean(hp)) %>%
+  knitr::kable(
+    col.names = c("CYL","MPG","HP"),
+    caption = "Means of MPG and HP by CYL")
+```
+
+## Use `knitr::kable()` for pretty output table
+
+```{r}
+library(palmerpenguins)
+penguins %>%
+  select(body_mass_g, flipper_length_mm, species) %>%
+  group_by(species) %>%
+  summarise(
+    body_mean = mean(body_mass_g, na.rm=TRUE),
+    body_sd = sd(body_mass_g, na.rm=TRUE),
+    flip_mean = mean(flipper_length_mm, na.rm=TRUE),
+    flip_sd = sd(flipper_length_mm, na.rm=TRUE)
+  ) %>%
+  knitr::kable()
+```
+
+## knitr::kable() - add better column headings
+
+```{r}
+penguins %>%
+  select(body_mass_g, flipper_length_mm, species) %>%
+  group_by(species) %>%
+  summarise(
+    body_mean = mean(body_mass_g, na.rm=TRUE),
+    body_sd = sd(body_mass_g, na.rm=TRUE),
+    flip_mean = mean(flipper_length_mm, na.rm=TRUE),
+    flip_sd = sd(flipper_length_mm, na.rm=TRUE)
+  ) %>%
+  knitr::kable(col.names = c("Species",
+                             "Mean Body Mass (g)",
+                             "SD of Body Mass (g)",
+                             "Mean Flipper Length (mm)",
+                             "SD of Flipper Length (mm)"))
+```
+
+## use `across()` with dplyr `summarise()`
+
+```{r}
+penguins %>%
+  dplyr::group_by(species) %>%
+  dplyr::summarize(across(ends_with("mm"), 
+                          ~ mean(.x, na.rm = TRUE))) %>%
+  knitr::kable()
+```
+
+## Making categories or recoding - dplyr::case_when()
+
+```{r}
+# Use case_when() to create
+# three size categories
+penguins_mod <- penguins %>%
+  mutate(size_bin = case_when(
+    body_mass_g > 4500 ~ "large",
+    body_mass_g > 3000 & 
+      body_mass_g <= 4500 ~ "medium",
+    body_mass_g <= 3000 ~ "small"
+    )
+  )
+# Create summary table 
+# of size categories
+penguins_mod %>% 
+  pull(size_bin) %>% 
+  table(useNA = "ifany") %>%
+  knitr::kable(
+    col.names = c("Size Category",
+                  "Frequency"))
+```
+
+## Quick Table Example - Arsenal Package
+
+**NOTE**: When using the `arsenal` package, remember to add `results="asis"` to the R code chunk options. This allows the `arsenal` table to be rendered correctly when you "KNIT" your document.
+
+```{r results = "asis"}
+library(arsenal)
+tab1 <- tableby(island ~ bill_length_mm + bill_depth_mm, 
+                data = penguins)
+summary(tab1)
+```
+
+
+## Another quick table with `gtsummary` package
+
+The `gtsummary` package does NOT need `results="asis"` in the code chunk options. And this works with the `dplyr` syntax.
+
+Learn more about `tbl_summary()` and more at the [`gtsummary` package website](https://www.danieldsjoberg.com/gtsummary/articles/tbl_summary.html).
+
+```{r}
+library(gtsummary)
+penguins %>%
+  select(bill_length_mm, bill_depth_mm, island) %>%
+  tbl_summary(by = island) %>%
+  add_p()
+```
+
