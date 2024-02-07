@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title></title>
+<style type="text/css">
+/**
+ * Prism.s theme ported from highlight.js's xcode style
+ */
+pre code {
+  padding: 1em;
+}
+.token.comment {
+  color: #007400;
+}
+.token.punctuation {
+  color: #999;
+}
+.token.tag,
+.token.selector {
+  color: #aa0d91;
+}
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol {
+  color: #1c00cf;
+}
+.token.property,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  color: #c41a16;
+}
+.token.inserted {
+  background-color: #ccffd8;
+}
+.token.deleted {
+  background-color: #ffebe9;
+}
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #9a6e3a;
+}
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #836c28;
+}
+.token.function,
+.token.class-name {
+  color: #DD4A68;
+}
+.token.regex,
+.token.important,
+.token.variable {
+  color: #5c2699;
+}
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}
+</style>
+<style type="text/css">
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+body, .footnotes, code { font-size: .9em; }
+li li { font-size: .95em; }
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+pre, img { max-width: 100%; }
+pre, pre:hover {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+pre code {
+  display: block;
+  overflow-x: auto;
+}
+code { font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace; }
+:not(pre) > code, code[class] { background-color: #F8F8F8; }
+code.language-undefined, pre > code:not([class]) {
+  background-color: inherit;
+  border: 1px solid #eee;
+}
+table {
+  margin: auto;
+  border-top: 1px solid #666;
+}
+table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+thead, tfoot, tr:nth-child(even) { background: #eee; }
+blockquote {
+  color: #666;
+  margin: 0;
+  padding-left: 1em;
+  border-left: 0.5em solid #eee;
+}
+hr, .footnotes::before { border: 1px dashed #ddd; }
+.frontmatter { text-align: center; }
+#TOC .numbered li { list-style: none; }
+#TOC .numbered { padding-left: 0; }
+#TOC .numbered ul { padding-left: 1em; }
+table, .body h2 { border-bottom: 1px solid #666; }
+.body .appendix, .appendix ~ h2 { border-bottom-style: dashed; }
+.footnote-ref a::before { content: "["; }
+.footnote-ref a::after { content: "]"; }
+section.footnotes::before {
+  content: "";
+  display: block;
+  max-width: 20em;
+}
+
+@media print {
+  body {
+    font-size: 12pt;
+    max-width: 100%;
+  }
+  tr, img { page-break-inside: avoid; }
+}
+@media only screen and (min-width: 992px) {
+  pre { white-space: pre; }
+}
+</style>
+</head>
+<body>
+<div class="frontmatter">
+<div class="title"><h1></h1></div>
+<div class="author"><h2></h2></div>
+<div class="date"><h3></h3></div>
+</div>
+<div class="body">
+<pre><code class="language-r"># Load packages =================================
+library(dplyr)
+library(readr)
+
+# READ IN LONG Dataset ==========================
+# Each person has from 1 - 3 time points
+# time nested within id
+# importing required libraries
+long1 &lt;- read_csv(&quot;long1.csv&quot;)
+</code></pre>
+<pre><code>## Rows: 22 Columns: 4
+## ── Column specification ──────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## dbl (4): id, time, bmi, satis
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+</code></pre>
+<pre><code class="language-r">long1
+</code></pre>
+<pre><code>## # A tibble: 22 × 4
+##       id  time   bmi satis
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+##  1     1     1  28       6
+##  2     1     2  27.6     7
+##  3     1     3  27.4     8
+##  4     2     1  33.4     7
+##  5     2     2  33.5     7
+##  6     2     3  33.2     6
+##  7     3     1  23.4     8
+##  8     3     2  23.3     9
+##  9     3     3  24.5     8
+## 10     4     1  25.6     6
+## # ℹ 12 more rows
+</code></pre>
+<pre><code class="language-r"># see who is missing which time point
+with(long1, table(id, time))
+</code></pre>
+<pre><code>##     time
+## id   1 2 3
+##   1  1 1 1
+##   2  1 1 1
+##   3  1 1 1
+##   4  1 0 1
+##   5  1 0 0
+##   6  1 1 1
+##   7  1 0 0
+##   8  1 0 0
+##   9  1 1 0
+##   10 1 1 1
+</code></pre>
+<pre><code class="language-r"># time points per id
+with(long1, table(id))
+</code></pre>
+<pre><code>## id
+##  1  2  3  4  5  6  7  8  9 10 
+##  3  3  3  2  1  3  1  1  2  3
+</code></pre>
+<pre><code class="language-r"># subjects per time point
+with(long1, table(time))
+</code></pre>
+<pre><code>## time
+##  1  2  3 
+## 10  6  6
+</code></pre>
+<pre><code class="language-r"># BASE R aggregate() function ===================
+# get mean bmi's and mean statisfaction scores
+# within each time point
+aggregate(cbind(bmi, satis) ~ time, 
+          data = long1, 
+          FUN = mean)
+</code></pre>
+<pre><code>##   time   bmi    satis
+## 1    1 28.91 6.900000
+## 2    2 27.95 7.500000
+## 3    3 27.85 7.833333
+</code></pre>
+<pre><code class="language-r"># More Powerful data.table package ==============
+# https://rdatatable.gitlab.io/data.table/
+# load package
+library(data.table)
+
+# convert long1 from data.frame to data.table class
+long1.dt &lt;- data.table(long1)
+class(long1)
+</code></pre>
+<pre><code>## [1] &quot;spec_tbl_df&quot; &quot;tbl_df&quot;      &quot;tbl&quot;         &quot;data.frame&quot;
+</code></pre>
+<pre><code class="language-r">class(long1.dt)
+</code></pre>
+<pre><code>## [1] &quot;data.table&quot; &quot;data.frame&quot;
+</code></pre>
+<pre><code class="language-r"># dt[any filters,
+#    functions to apply,
+#    by which variables (aggregate within)]
+
+# for id's 1-5
+# get sample size and mean bmi and mean satis
+# within each time point
+ans &lt;- long1.dt[id &lt; 6,
+               .(.N, mean(bmi), mean(satis)),
+               by = .(time)]
+ans
+</code></pre>
+<pre><code>##     time     N       V2       V3
+##    &lt;num&gt; &lt;int&gt;    &lt;num&gt;    &lt;num&gt;
+## 1:     1     5 27.88000 6.400000
+## 2:     2     3 28.13333 7.666667
+## 3:     3     4 27.92500 7.500000
+</code></pre>
+<pre><code class="language-r"># example use for making an
+# error bar plot
+bmi_by_time &lt;-
+  long1.dt[,                  # no row filter used
+           .(mean(bmi),       # list functions
+             sd(bmi)),
+           by = .(time)]      # aggregate by
+bmi_by_time
+</code></pre>
+<pre><code>##     time    V1       V2
+##    &lt;num&gt; &lt;num&gt;    &lt;num&gt;
+## 1:     1 28.91 3.786071
+## 2:     2 27.95 3.756993
+## 3:     3 27.85 3.386296
+</code></pre>
+<pre><code class="language-r"># clean up variable names
+names(bmi_by_time)
+</code></pre>
+<pre><code>## [1] &quot;time&quot; &quot;V1&quot;   &quot;V2&quot;
+</code></pre>
+<pre><code class="language-r">names(bmi_by_time) &lt;- c(&quot;time&quot;, &quot;bmi&quot;, &quot;sd&quot;)
+names(bmi_by_time)
+</code></pre>
+<pre><code>## [1] &quot;time&quot; &quot;bmi&quot;  &quot;sd&quot;
+</code></pre>
+<pre><code class="language-r">library(ggplot2)
+
+# make error bar plot
+# see http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/
+# mean bmi +/- sd at each time point
+# options added to plot
+# set y-axis limits
+# remove 0.5 time point labels and tick marks - see http://www.sthda.com/english/wiki/ggplot2-axis-ticks-a-guide-to-customize-tick-marks-and-labels
+# try different themes
+# add nicer labels, titles and a caption
+
+ggplot(bmi_by_time, 
+       aes(x=time, y=bmi)) + 
+  geom_errorbar(aes(ymin=bmi-sd, ymax=bmi+sd), width=.1) +
+  geom_line() +
+  geom_point() +
+  ylim(20, 40) +
+  scale_x_discrete(limits=c(&quot;1&quot;,&quot;2&quot;,&quot;3&quot;)) +
+  #theme_classic() +
+  #theme_linedraw() +
+  theme_light() +
+  labs(
+    x = &quot;Time Points&quot;,
+    y = &quot;Body Mass Index&quot;,
+    title = &quot;BMI (mean +/- sd) Over Time&quot;,
+    subtitle = &quot;Time 1 (n=10), Time 2 (n=6), Time 3 (n=6)&quot;,
+    caption = &quot;Note: Summary Statistics Computed Using data.table R Package&quot;
+  )
+</code></pre>
+<p><img src="data:image/png;base64,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" alt="plot of chunk unnamed-chunk-1" /></p>
+<pre><code class="language-r"># Note You can &quot;knit&quot; the R script to markdown and HTML
+# knitr::spin(&quot;aggregate.R&quot;, format = &quot;Rmd&quot;)
+# this creates
+#      aggregate.md
+#      aggregate.html
+</code></pre>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+</body>
+</html>
